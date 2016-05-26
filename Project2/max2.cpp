@@ -5,7 +5,7 @@
 
 #define M 20
 #define BLOCKNUM 3
-#define STEPSIZE 0.005
+#define STEPSIZE 0.01
 
 typedef struct _circle {
 	//int order;
@@ -61,6 +61,10 @@ bool ifOverlap2(double x, double y, double r)
 	//	return false;
 	CIRCLE *temp = circlesHead->next;
 
+	for (int i = 0;i < BLOCKNUM;i++)
+		if (r > sqrt((blocks2[i].x - x)*(blocks2[i].x - x) + (blocks2[i].y - y)*(blocks2[i].y - y)))
+			return false;
+
 	while (temp != NULL)
 	{
 		if (temp->r + r > sqrt((temp->x - x)*(temp->x - x) + (temp->y - y)*(temp->y - y)))
@@ -75,6 +79,11 @@ bool ifOverlap3(double x, double y, double z, double r)
 	//	return false;
 	BALL *temp = ballsHead->next;
 
+	for (int i = 0;i < BLOCKNUM;i++)
+		if (r > sqrt((blocks3[i].x - x)*(blocks3[i].x - x) + (blocks3[i].y - y)*(blocks3[i].y - y) + 
+			(blocks3[i].z - z)*(blocks3[i].z - z)))
+			return false;
+
 	while (temp != NULL)
 	{
 		if (temp->r + r > sqrt((temp->x - x)*(temp->x - x) + (temp->y - y)*(temp->y - y) + (temp->z - z)*(temp->z - z)))
@@ -86,19 +95,14 @@ bool ifOverlap3(double x, double y, double z, double r)
 
 void max2d()
 {
-	CIRCLE *add = new CIRCLE, *temp;
-	add->r = 1;
-	add->x = 0;
-	add->y = 0;
-	add->next = NULL;
-	circlesHead->next = add;
+	CIRCLE *add = circlesHead, *temp;
 
-	for (int i = 1;i < M;i++)
+	for (int i = 0;i < M;i++)
 	{
-		for (double r = 0.180;r > 0;r -= STEPSIZE)
+		for (double r = 1 - 1e-6;r > 0;r -= STEPSIZE)
 		{
-			for (double x = -1.0 + r;x < 1.0 - r;x += STEPSIZE)//三四象限
-				for (double y = -1.0 + r;y <(-1) * sqrt(1 - x * x);y += STEPSIZE)
+			for (double x = -1.0 + r;x < 1.0 - r;x += STEPSIZE)
+				for (double y = -1.0 + r;y <1.0 - r;y += STEPSIZE)
 				{
 					if (ifOverlap2(x, y, r))
 					{
@@ -112,22 +116,6 @@ void max2d()
 						goto out;
 					}
 				}
-			for (double x = -1.0 + r;x < 1.0 - r;x += STEPSIZE)//一二象限
-				for (double y = sqrt(1 - x * x);y < 1.0 - r;y += STEPSIZE)
-				{
-					if (ifOverlap2(x, y, r))
-					{
-						temp = new CIRCLE;
-						temp->r = r;
-						temp->x = x;
-						temp->y = y;
-						temp->next = NULL;
-						add->next = temp;
-						add = add->next;
-						goto out;
-					}
-				}
-
 		}
 		printf("error2\n");
 		break;
@@ -139,38 +127,15 @@ void max2d()
 
 void max3d()
 {
-	BALL *add = new BALL, *temp;
-	add->r = 1;
-	add->x = 0;
-	add->y = 0;
-	add->z = 0;
-	add->next = NULL;
-	ballsHead->next = add;
+	BALL *add = ballsHead, *temp;
 
-	for (int i = 1;i < M;i++)
+	for (int i = 0;i < M;i++)
 	{
-		for (double r = 0.27;r > 0;r -= STEPSIZE)
+		for (double r = 1 - 1e-6;r > 0;r -= STEPSIZE)
 		{
-			for (double x = -1.0 + r;x < 1.0 - r;x += STEPSIZE)//下半空间
+			for (double x = -1.0 + r;x < 1.0 - r;x += STEPSIZE)
 				for (double y = -1.0 + r;y < 1.0 - r;y += STEPSIZE)
-					for (double z = -1.0 + r;z <(-1) * sqrt(1 - x * x - y * y);z += STEPSIZE)
-					{
-						if (ifOverlap3(x, y, z, r))
-						{
-							temp = new BALL;
-							temp->r = r;
-							temp->x = x;
-							temp->y = y;
-							temp->z = z;
-							temp->next = NULL;
-							add->next = temp;
-							add = add->next;
-							goto out;
-						}
-					}
-			for (double x = -1.0 + r;x < 1.0 - r;x += STEPSIZE)//上半空间
-				for (double y = -1.0 + r;y < 1.0 - r;y += STEPSIZE)
-					for (double z = sqrt(1 - x * x - y * y);z <1.0 - r;z += STEPSIZE)
+					for (double z = -1.0 + r;z <1.0 - r;z += STEPSIZE)
 					{
 						if (ifOverlap3(x, y, z, r))
 						{
@@ -196,12 +161,15 @@ void max3d()
 
 int main()
 {
+	circlesHead->next = NULL;
+	ballsHead->next = NULL;
+
+	produceBlock();
+
 	clock_t start2, end2, start3, end3;
 	start2 = clock();
 	max2d();
 	end2 = clock();
-
-	produceBlock();
 
 	CIRCLE *temp1 = circlesHead->next;
 	double sum1 = 0;
