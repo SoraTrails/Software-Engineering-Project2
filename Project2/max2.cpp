@@ -3,7 +3,7 @@
 #include<math.h>
 #include<time.h>
 
-#define M 20
+#define M 5
 #define BLOCKNUM 3
 #define STEPSIZE 0.01
 
@@ -45,6 +45,21 @@ BLOCK3 blocks3[BLOCKNUM];
 void produceBlock()
 {
 	srand(time(NULL));
+	//test1:
+	//blocks2[0].x = 0.9;
+	//blocks2[0].y = 0.9;
+	//blocks2[1].x = -0.9;
+	//blocks2[1].y = 0.9;
+	//blocks2[2].x = 0.9;
+	//blocks2[2].y = -0.9;
+	//test2:
+	//blocks2[0].x = 0;
+	//blocks2[0].y = 0;
+	//blocks2[1].x = -0.9;
+	//blocks2[1].y = 0.9;
+	//blocks2[2].x = 0.9;
+	//blocks2[2].y = -0.9;
+
 	for (int i = 0;i < BLOCKNUM;i++)
 	{
 		blocks2[i].x = (double)((double)rand() / RAND_MAX) * 2 - 1;
